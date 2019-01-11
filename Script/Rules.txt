@@ -1,0 +1,9 @@
+---------Как давать имя триггеру?-------------
+<TR>_<aft/bef>_<del/upd/ins>_<table>
+
+aft - after
+bef - before
+
+del - delete 
+upd - update
+ins - insert 
