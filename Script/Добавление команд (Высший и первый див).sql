@@ -1,5 +1,10 @@
+delete from teams
+where id_team > 0;
+
+ALTER TABLE `football_main`.teams  AUTO_INCREMENT=0;
 
 INSERT INTO `teams` VALUES 
+(1,1,'Усадьба Банная','2015-01-01','Усадьба Банная.png',null),
 (2,1,'Дизайн-окно-Связист','2012-01-01','Дизайн-окно-Связист.png',null),
 (3,1,'Авангард','2010-01-01','Авангард.png',null),
 (4,1,'Титан','2010-01-01','Титан.png',null),
