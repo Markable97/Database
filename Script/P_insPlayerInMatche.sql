@@ -17,6 +17,7 @@ begin
 	declare l_id_match int;
     declare l_id_player int;
 	declare f int;
+    declare f_2 int default 0;
     #вытаскиваем id матча
     select id_match
      into l_id_match
@@ -33,11 +34,23 @@ begin
          into l_id_player
         from players
         where name like name_player and id_team = (select id_team from teams where team_name like t_player);
+        
+		select count(1)
+		 into f_2
+        from players_in_match pm, v_matches m
+        where pm.id_match = m.id_match
+        and m.id_tour = tour
+        and m.team_home = t_home
+        and m.team_guest = t_guest
+        and pm.id_player = l_id_player;
+        
+        
     else 
 		select id_player
 		 into l_id_player
 		from players 
         where name like name_player;
+        
     end if;
     
     if l_id_player is null then 
@@ -50,14 +63,16 @@ begin
         where name = name_player;
 	end if;
     #добавляем игрока
-    insert into players_in_match
-    set id_match = l_id_match,
-		id_player = l_id_player,
-        count_goals = goals,
-        count_assist = assists,
-        yellow = c_yellow,
-        red = c_red,
-        penalty = l_penalty,
-        penalty_out = l_penalty_out,
-        own_goal = l_own_goal;
+    if f_2 <> 1 then 
+		insert into players_in_match
+		set id_match = l_id_match,
+			id_player = l_id_player,
+			count_goals = goals,
+			count_assist = assists,
+			yellow = c_yellow,
+			red = c_red,
+			penalty = l_penalty,
+			penalty_out = l_penalty_out,
+			own_goal = l_own_goal;
+	end if;
 end//
