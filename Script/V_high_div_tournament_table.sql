@@ -13,5 +13,6 @@ select d.name_division,
 from tournament_table tt, teams t, divisions d
 where tt.id_team = t.id_team
 and tt.id_division = d.id_division
-and d.id_division = 1;
+and d.id_division = 1
+order by points desc;
 
