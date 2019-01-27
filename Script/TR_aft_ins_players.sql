@@ -13,9 +13,10 @@ set idPlayer = new.id_player;
 set idSeason = (select id_season from sesons
 					where curdate() between year_start and year_end);
 set idTeam = new.id_team;         
-           
-insert into players_statistics
-set id_player = idPlayer, id_season = idSeason, id_team = idTeam,
-games = 0, goal = 0, assist = 0, yellow_card = 0, red_card = 0, penalty = 0, own_goal = 0, penalty_out = 0;
- 
+
+#if idTeam <> 36 then
+	insert into players_statistics
+	set id_player = idPlayer, id_season = idSeason, id_team = idTeam,
+	games = 0, goal = 0, assist = 0, yellow_card = 0, red_card = 0, penalty = 0, own_goal = 0, penalty_out = 0;
+#end if; 
 end//
