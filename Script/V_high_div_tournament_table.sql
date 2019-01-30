@@ -9,10 +9,11 @@ select d.name_division,
        tt.losses,
        tt.goals_scored,
        tt.goals_conceded,
+       tt.goals_scored - tt.goals_conceded as sc_con, 
        tt.points
 from tournament_table tt, teams t, divisions d
 where tt.id_team = t.id_team
 and tt.id_division = d.id_division
 and d.id_division = 1
-order by points desc;
+order by points desc, sc_con desc;
 

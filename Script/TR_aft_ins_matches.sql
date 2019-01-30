@@ -19,7 +19,8 @@ set team_guest = new.team_guest;
 set goal_h = new.goal_home;
 set goal_v = new.goal_guest;
 
-if goal_h is not null then 
+#if goal_h is not null then 
+if new.id_referee is not null then 
 
 	    if goal_h > goal_v then
     #победа первой
@@ -62,4 +63,15 @@ if goal_h is not null then
 
 end if;
 
+end//
+
+drop trigger if exists tr_bef_ins_matches;
+DELIMITER //
+create trigger tr_bef_ins_matches before insert on matches 
+for each row
+begin 
+	if new.id_referee is null then 
+		set new.goal_home = null;
+        set new.goal_guest = null;
+    end if;
 end//
