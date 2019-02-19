@@ -20,7 +20,7 @@ set goal_h = new.goal_home;
 set goal_v = new.goal_guest;
 
 #if goal_h is not null then 
-if new.id_referee is not null then 
+if new.id_referee is not null and goal_h is not null then 
 
 	    if goal_h > goal_v then
     #победа первой
@@ -70,8 +70,27 @@ DELIMITER //
 create trigger tr_bef_ins_matches before insert on matches 
 for each row
 begin 
+
+declare l_id_match int;
+declare l_g_home int;
+
+select m.id_match, m.goal_home
+into l_id_match, l_g_home
+from matches m
+where team_home = new.team_home and team_guest = new.team_guest;
+
 	if new.id_referee is null then 
 		set new.goal_home = null;
         set new.goal_guest = null;
     end if;
+
+if l_id_match is not null  and l_g_home is not null then 
+	update matches 
+    set goal_home = new.goal_home,
+		goal_guest = new.goal_guest
+	where id_match = l_id_match;
+    
+    SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: not insert, but update';
+end if;
+    
 end//
