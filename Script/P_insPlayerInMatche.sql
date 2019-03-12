@@ -63,7 +63,7 @@ begin
         where name = name_player;
 	end if;
     #добавляем игрока
-    if f_2 <> 1 then 
+    if f_2 = 0 then 
 		insert into players_in_match
 		set id_match = l_id_match,
 			id_player = l_id_player,

@@ -1,0 +1,1259 @@
+-- MySQL dump 10.13  Distrib 5.7.17, for Win64 (x86_64)
+--
+-- Host: localhost    Database: football_main
+-- ------------------------------------------------------
+-- Server version	5.7.21-log
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `amplua`
+--
+
+DROP TABLE IF EXISTS `amplua`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `amplua` (
+  `id_amplua` int(11) NOT NULL AUTO_INCREMENT,
+  `name_amplua` varchar(45) NOT NULL,
+  PRIMARY KEY (`id_amplua`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `amplua`
+--
+
+LOCK TABLES `amplua` WRITE;
+/*!40000 ALTER TABLE `amplua` DISABLE KEYS */;
+INSERT INTO `amplua` VALUES (1,'Вратарь'),(2,'Защитник'),(3,'Полузащитник'),(4,'Нападающий');
+/*!40000 ALTER TABLE `amplua` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `divisions`
+--
+
+DROP TABLE IF EXISTS `divisions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `divisions` (
+  `id_division` int(11) NOT NULL,
+  `name_division` varchar(45) NOT NULL,
+  PRIMARY KEY (`id_division`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `divisions`
+--
+
+LOCK TABLES `divisions` WRITE;
+/*!40000 ALTER TABLE `divisions` DISABLE KEYS */;
+INSERT INTO `divisions` VALUES (1,'Высший дивизион'),(2,'Первый дивизион'),(3,'Второй дивизион A'),(4,'Второй дивизион B'),(5,'Третий дивизион A'),(6,'Третий дивизион B');
+/*!40000 ALTER TABLE `divisions` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `matches`
+--
+
+DROP TABLE IF EXISTS `matches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `matches` (
+  `id_match` int(11) NOT NULL AUTO_INCREMENT,
+  `id_season` int(11) NOT NULL,
+  `id_division` int(11) NOT NULL,
+  `id_tour` int(11) NOT NULL,
+  `team_home` int(11) NOT NULL,
+  `goal_home` int(11) DEFAULT NULL,
+  `goal_guest` int(11) DEFAULT NULL,
+  `team_guest` int(11) NOT NULL,
+  `m_date` datetime DEFAULT NULL,
+  `id_stadium` int(11) DEFAULT NULL,
+  `id_referee` int(11) DEFAULT NULL,
+  `transfer` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_match`,`id_season`,`id_division`,`id_tour`),
+  KEY `fk_matches_teams1_idx` (`team_home`),
+  KEY `fk_matches_teams2_idx` (`team_guest`),
+  KEY `fk_matches_sesons1_idx` (`id_season`),
+  KEY `fk_matches_stadiums1_idx` (`id_stadium`),
+  KEY `fk_matches_divisions1_idx` (`id_division`),
+  KEY `fk_matches_staff1_idx` (`id_referee`),
+  CONSTRAINT `fk_matches_divisions1` FOREIGN KEY (`id_division`) REFERENCES `divisions` (`id_division`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matches_sesons1` FOREIGN KEY (`id_season`) REFERENCES `sesons` (`id_season`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matches_stadiums1` FOREIGN KEY (`id_stadium`) REFERENCES `stadiums` (`id_stadium`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matches_staff1` FOREIGN KEY (`id_referee`) REFERENCES `staff` (`id_staff`),
+  CONSTRAINT `fk_matches_teams1` FOREIGN KEY (`team_home`) REFERENCES `teams` (`id_team`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_matches_teams2` FOREIGN KEY (`team_guest`) REFERENCES `teams` (`id_team`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `matches`
+--
+
+LOCK TABLES `matches` WRITE;
+/*!40000 ALTER TABLE `matches` DISABLE KEYS */;
+/*!40000 ALTER TABLE `matches` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger tr_bef_ins_matches before insert on matches 
+for each row
+begin 
+
+declare l_id_match int;
+declare l_g_home int;
+
+select m.id_match, m.goal_home
+into l_id_match, l_g_home
+from matches m
+where team_home = new.team_home and team_guest = new.team_guest;
+
+	if new.id_referee is null then 
+		set new.goal_home = null;
+        set new.goal_guest = null;
+    end if;
+
+if l_id_match is not null  and l_g_home is not null then 
+	update matches 
+    set goal_home = new.goal_home,
+		goal_guest = new.goal_guest
+	where id_match = l_id_match;
+    
+    SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: not insert, but update';
+end if;
+    
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger tr_aft_ins_matches after insert on matches 
+for each row
+begin 
+
+declare team_home int;
+declare team_guest int;
+
+declare goal_h int;
+declare goal_v int;
+declare befor int;
+
+#set befor = old.goal_home;
+
+set team_home = new.team_home;
+set team_guest = new.team_guest;
+set goal_h = new.goal_home;
+set goal_v = new.goal_guest;
+
+#if goal_h is not null then 
+if new.id_referee is not null and goal_h is not null then 
+
+	    if goal_h > goal_v then
+    #победа первой
+		update tournament_table 
+		set games= games + 1, wins = wins + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 3
+        where id_team = team_home;
+	#поражение второй
+		update tournament_table
+        set games= games + 1, losses = losses + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h
+        where id_team = team_guest;
+        
+    elseif goal_h < goal_v then
+    #поражение первой
+		update tournament_table
+        set games= games + 1, losses = losses + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v
+        where id_team = team_home;
+	#победа второй
+        update tournament_table 
+		set games= games + 1, wins = wins + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 3
+        where id_team = team_guest;
+        
+	else
+    #ничья
+		update tournament_table
+		set games= games + 1, draws = draws + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 1
+        where id_team = team_home;
+        
+        update tournament_table
+		set games= games + 1, draws = draws + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 1
+        where id_team = team_guest;
+    
+        
+    end if;
+
+end if;
+
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger up_tournament_table after update on matches 
+for each row
+begin 
+
+declare team_home int;
+declare team_guest int;
+
+declare goal_h int;
+declare goal_v int;
+declare befor int;
+
+set befor = old.goal_home;
+
+set team_home = old.team_home;
+set team_guest = old.team_guest;
+set goal_h = new.goal_home;
+set goal_v = new.goal_guest;
+if goal_h is not null and old.goal_home is null then
+
+    
+    if goal_h > goal_v then
+    #победа первой
+		update tournament_table 
+		set games= games + 1, wins = wins + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 3
+        where id_team = team_home;
+	#поражение второй
+		update tournament_table
+        set games= games + 1, losses = losses + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h
+        where id_team = team_guest;
+        
+    elseif goal_h < goal_v then
+    #поражение первой
+		update tournament_table
+        set games= games + 1, losses = losses + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v
+        where id_team = team_home;
+	#победа второй
+        update tournament_table 
+		set games= games + 1, wins = wins + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 3
+        where id_team = team_guest;
+        
+	else
+    #ничья
+		update tournament_table
+		set games= games + 1, draws = draws + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 1
+        where id_team = team_home;
+        
+        update tournament_table
+		set games= games + 1, draws = draws + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 1
+        where id_team = team_guest;
+    
+    end if;
+elseif old.goal_home <> new.goal_home or old.goal_guest <> new.goal_guest then
+	set goal_h = new.goal_home;
+	set goal_v = new.goal_guest;
+    if goal_h > goal_v then
+    #победа первой
+		if old.goal_home > old.goal_guest then 
+			#старая победа первой
+            update tournament_table
+            set goals_scored = goals_scored - old.goal_home + new.goal_home,
+            goals_conceded = goals_conceded - old.goal_guest + new.goal_guest
+            where id_team = team_home;
+            #старое поражение второй
+            update tournament_table
+			set goals_scored = goals_scored - old.goal_guest + new.goal_guest,
+			goals_conceded = goals_conceded - old.goal_home + new.goal_home
+			where id_team = team_guest;
+        end if;
+        #доделать для каждого старого события
+		/*update tournament_table 
+		set wins = wins + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 3
+        where id_team = team_home;
+	#поражение второй
+		update tournament_table
+        set losses = losses + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h
+        where id_team = team_guest;*/
+        
+    elseif goal_h < goal_v then
+    #поражение первой
+		update tournament_table
+        set losses = losses + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v
+        where id_team = team_home;
+	#победа второй
+        update tournament_table 
+		set wins = wins + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 3
+        where id_team = team_guest;
+        
+	else
+    #ничья
+		update tournament_table
+		set draws = draws + 1, goals_scored = goals_scored + goal_h,
+        goals_conceded = goals_conceded + goal_v, points = points + 1
+        where id_team = team_home;
+        
+        update tournament_table
+		set draws = draws + 1, goals_scored = goals_scored + goal_v,
+        goals_conceded = goals_conceded + goal_h, points = points + 1
+        where id_team = team_guest;
+    
+    end if;      
+end if;
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `players`
+--
+
+DROP TABLE IF EXISTS `players`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `players` (
+  `id_player` int(11) NOT NULL AUTO_INCREMENT,
+  `id_team` int(11) DEFAULT NULL,
+  `name` varchar(100) NOT NULL,
+  `id_amplua` int(11) DEFAULT NULL,
+  `birthdate` date DEFAULT NULL,
+  `number` int(11) DEFAULT NULL,
+  `photo` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id_player`),
+  KEY `fk_players_teams_idx` (`id_team`),
+  KEY `fk_players_amplua1_idx` (`id_amplua`),
+  CONSTRAINT `fk_players_amplua1` FOREIGN KEY (`id_amplua`) REFERENCES `amplua` (`id_amplua`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_players_teams` FOREIGN KEY (`id_team`) REFERENCES `teams` (`id_team`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `players`
+--
+
+LOCK TABLES `players` WRITE;
+/*!40000 ALTER TABLE `players` DISABLE KEYS */;
+/*!40000 ALTER TABLE `players` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger  tr_before_ins_players before insert on players
+for each row
+begin
+	
+    declare f int;
+    declare pl_name char(100);
+    set pl_name = new.name;
+    
+    select id_player
+	 into f
+    from players p
+    where p.name = pl_name;
+    
+    if  f is not null then 
+		SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: player have already exist';
+    end if;
+
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger  tr_aft_ins_players after insert on players
+for each row
+begin
+
+declare idPlayer int;
+declare idSeason int;
+declare idTeam int;
+
+set idPlayer = new.id_player;
+set idSeason = (select id_season from sesons
+					where curdate() between year_start and year_end);
+set idTeam = new.id_team;         
+           
+insert into players_statistics
+set id_player = idPlayer, id_season = idSeason, id_team = idTeam,
+games = 0, goal = 0, assist = 0, yellow_card = 0, red_card = 0, penalty = 0, own_goal = 0, penalty_out = 0;
+ 
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `players_in_match`
+--
+
+DROP TABLE IF EXISTS `players_in_match`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `players_in_match` (
+  `id_match` int(11) NOT NULL,
+  `id_player` int(11) NOT NULL COMMENT 'Заявка на матч. Данные об игроке, участвующем в матче (его активность)',
+  `count_goals` int(11) DEFAULT NULL,
+  `count_assist` int(11) DEFAULT NULL,
+  `yellow` int(11) DEFAULT NULL,
+  `red` int(11) DEFAULT NULL,
+  `penalty` int(11) DEFAULT NULL,
+  `penalty_out` int(11) DEFAULT NULL,
+  `own_goal` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_match`,`id_player`),
+  KEY `fk_players_in_match_players1_idx` (`id_player`),
+  KEY `fk_players_in_match_matches1_idx` (`id_match`),
+  CONSTRAINT `fk_players_in_match_matches1` FOREIGN KEY (`id_match`) REFERENCES `matches` (`id_match`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_players_in_match_players1` FOREIGN KEY (`id_player`) REFERENCES `players` (`id_player`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `players_in_match`
+--
+
+LOCK TABLES `players_in_match` WRITE;
+/*!40000 ALTER TABLE `players_in_match` DISABLE KEYS */;
+/*!40000 ALTER TABLE `players_in_match` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger  tr_aft_ins_players_in_match after insert on players_in_match
+for each row
+begin 
+
+declare l_id int;
+declare l_count_goals int ;
+declare l_count_assist int;
+declare l_yellow int;
+declare l_red int;
+declare l_penalty int;
+declare l_penalty_out int;
+declare l_own_goal int;
+
+set l_id = new.id_player;
+set l_count_goals = new.count_goals;
+set l_count_assist = new.count_assist;
+set l_yellow = new.yellow;
+set l_red = new.red;
+set l_penalty = new.penalty;
+set l_penalty_out = new.penalty_out;
+set l_own_goal = new.own_goal;
+
+
+
+update players_statistics ps
+set games = games + 1, 
+	goal = goal + l_count_goals, 
+	assist = assist + l_count_assist,
+	yellow_card = yellow_card + l_yellow, 
+    red_card = red_card + l_red, 
+    ps.penalty = ps.penalty + l_penalty,
+	ps.penalty_out = ps.penalty_out + l_penalty_out, 
+    ps.own_goal = ps.own_goal + l_own_goal
+where ps.id_player = l_id;
+	
+
+
+
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `players_statistics`
+--
+
+DROP TABLE IF EXISTS `players_statistics`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `players_statistics` (
+  `id_season` int(11) NOT NULL,
+  `id_player` int(11) NOT NULL,
+  `id_team` int(11) NOT NULL,
+  `games` int(11) DEFAULT NULL,
+  `goal` int(11) DEFAULT NULL,
+  `assist` int(11) DEFAULT NULL,
+  `yellow_card` int(11) DEFAULT NULL,
+  `red_card` int(11) DEFAULT NULL,
+  `penalty` int(11) DEFAULT NULL,
+  `own_goal` int(11) DEFAULT NULL,
+  `penalty_out` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_season`,`id_player`,`id_team`),
+  KEY `fk_players_has_sesons_sesons1_idx` (`id_season`),
+  KEY `fk_players_has_sesons_players1_idx` (`id_player`),
+  KEY `fk_players_statistics_teams1_idx` (`id_team`),
+  CONSTRAINT `fk_players_has_sesons_players1` FOREIGN KEY (`id_player`) REFERENCES `players` (`id_player`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_players_has_sesons_sesons1` FOREIGN KEY (`id_season`) REFERENCES `sesons` (`id_season`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_players_statistics_teams1` FOREIGN KEY (`id_team`) REFERENCES `teams` (`id_team`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `players_statistics`
+--
+
+LOCK TABLES `players_statistics` WRITE;
+/*!40000 ALTER TABLE `players_statistics` DISABLE KEYS */;
+/*!40000 ALTER TABLE `players_statistics` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `position`
+--
+
+DROP TABLE IF EXISTS `position`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `position` (
+  `id_pos` int(11) NOT NULL AUTO_INCREMENT,
+  `pos_name` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`id_pos`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `position`
+--
+
+LOCK TABLES `position` WRITE;
+/*!40000 ALTER TABLE `position` DISABLE KEYS */;
+INSERT INTO `position` VALUES (1,'Руководитель'),(2,'Главный судья'),(3,'Судья 1 категории'),(4,'Судья 2 категории');
+/*!40000 ALTER TABLE `position` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `sesons`
+--
+
+DROP TABLE IF EXISTS `sesons`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `sesons` (
+  `id_season` int(11) NOT NULL AUTO_INCREMENT,
+  `year_end` date DEFAULT NULL,
+  `year_start` date DEFAULT NULL,
+  PRIMARY KEY (`id_season`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `sesons`
+--
+
+LOCK TABLES `sesons` WRITE;
+/*!40000 ALTER TABLE `sesons` DISABLE KEYS */;
+INSERT INTO `sesons` VALUES (1,'2019-07-01','2018-08-01'),(2,'2018-07-01','2017-08-01');
+/*!40000 ALTER TABLE `sesons` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `stadiums`
+--
+
+DROP TABLE IF EXISTS `stadiums`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `stadiums` (
+  `id_stadium` int(11) NOT NULL AUTO_INCREMENT,
+  `name_stadium` varchar(45) DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id_stadium`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stadiums`
+--
+
+LOCK TABLES `stadiums` WRITE;
+/*!40000 ALTER TABLE `stadiums` DISABLE KEYS */;
+INSERT INTO `stadiums` VALUES (1,'Спартак 1','Академия Спартака'),(2,'Спартак 2','Академия Спартака'),(3,'Спартак 3','Академия Спартака'),(4,'Спартак 4','Академия Спартака');
+/*!40000 ALTER TABLE `stadiums` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `staff`
+--
+
+DROP TABLE IF EXISTS `staff`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `staff` (
+  `id_staff` int(11) NOT NULL AUTO_INCREMENT,
+  `staff_name` varchar(70) DEFAULT NULL,
+  `id_pos` int(11) DEFAULT NULL,
+  `num_phone` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id_staff`),
+  KEY `fk_staff_position1_idx` (`id_pos`),
+  CONSTRAINT `fk_staff_position1` FOREIGN KEY (`id_pos`) REFERENCES `position` (`id_pos`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `staff`
+--
+
+LOCK TABLES `staff` WRITE;
+/*!40000 ALTER TABLE `staff` DISABLE KEYS */;
+/*!40000 ALTER TABLE `staff` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger tr_bef_ins_staff before insert on staff
+for each row 
+begin
+	declare l_new_name char(100);
+    declare l_f int;
+    set l_new_name = new.staff_name;
+    
+    select count(1)
+		into l_f
+	from staff
+		where staff_name like l_new_name;
+        
+	if l_f = 0 then 
+		set new.staff_name = l_new_name,
+			new.id_pos = 3;
+	else
+		SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: This name have already exist';
+    end if;
+    
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `teams`
+--
+
+DROP TABLE IF EXISTS `teams`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `teams` (
+  `id_team` int(11) NOT NULL AUTO_INCREMENT,
+  `id_division` int(11) DEFAULT NULL,
+  `team_name` varchar(100) NOT NULL,
+  `creation_date` date DEFAULT NULL,
+  `logo` varchar(45) DEFAULT NULL,
+  `id_parent` int(11) DEFAULT NULL COMMENT 'Дубль основной команды',
+  PRIMARY KEY (`id_team`),
+  KEY `fk_teams_teams1_idx` (`id_parent`)
+) ENGINE=InnoDB AUTO_INCREMENT=43 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `teams`
+--
+
+LOCK TABLES `teams` WRITE;
+/*!40000 ALTER TABLE `teams` DISABLE KEYS */;
+INSERT INTO `teams` VALUES (1,1,'Усадьба Банная','2015-01-01','Усадьба Банная.png',NULL),(2,1,'Дизайн-окно-Связист','2012-01-01','Дизайн-окно-Связист.png',NULL),(3,1,'Авангард','2010-01-01','Авангард.png',NULL),(4,1,'Титан','2010-01-01','Титан.png',NULL),(5,1,'Бриг','2014-01-01','Бриг.png',NULL),(6,1,'Альбасете','2015-01-01','Альбасете.png',NULL),(7,1,'Селтик','2015-01-02','Селтик.png',NULL),(8,1,'Трансгарант','2015-01-03','Трансгарант.png',NULL),(9,1,'Профит-Хаста','2015-01-04','Профит-Хаста.png',NULL),(10,1,'Регион-13','2015-01-05','Регион-13.png',NULL),(11,1,'Нижгары','2015-01-06','Нижгары.png',NULL),(12,1,'Селтик-2','2015-01-07','Селтик-2.png',NULL),(13,1,'Экспресс Москва','2015-01-08','Экспресс Москва.png',NULL),(14,1,'Бастион','2015-01-09','Бастион.png',NULL),(15,1,'РМА','2015-01-10','РМА.png',NULL),(16,1,'СКА','2015-01-11','СКА.png',NULL),(17,2,'Морс','2015-01-01','морс.png',NULL),(18,2,'Торпедо','2016-01-01','торпедо.png',NULL),(19,2,'Атлетик','2015-01-01','атлетик.png',NULL),(20,2,'Лефортово','2010-01-01','лефортово.png',NULL),(21,2,'Косино','2014-01-01','косино.png',NULL),(22,2,'Аэротрейд','2013-01-01','аэротрейд.png',NULL),(23,2,'Бобби Дэззлер','2014-04-01','Бобби Дэззлер.png',NULL),(24,2,'Гравити','2017-04-01','гравити.png',NULL),(25,2,'Жилкомплекс-Королёв','2011-01-31','Жилкомплекс-Королёв.png',NULL),(26,2,'Заря','2011-02-10','заря.png',NULL),(27,2,'Зубр','2016-02-10','зубр.png',NULL),(28,2,'ЛИТ','2009-02-10','лит.png',NULL),(29,2,'ЛФК Империя','2008-02-10','ЛФК Империя.png',NULL),(30,2,'Прайм','2017-02-10','прайм.png',NULL),(31,2,'Профком Юнайтед','2016-02-10','Профком Юнайтед.png',NULL),(38,2,'СтройЭкспо','2016-02-10','стройЭкспо.png',NULL),(39,2,'Фора','2011-02-10','фора.png',NULL),(40,2,'Фут. академия','2015-02-10','Фут. академия.png',NULL),(41,2,'Чума востока','2016-02-10','Чума востока.png',NULL),(42,2,'Эрствак','2015-02-10','эрствак.png',NULL);
+/*!40000 ALTER TABLE `teams` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+/*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 trigger tr_aft_ins_teams after insert on teams
+for each row
+begin 
+
+if new.team_name <> 'cвободный агент' then
+	insert into tournament_table
+	set id_season = (select id_season from sesons
+						where curdate() between year_start and year_end),
+		id_division = new.id_division,
+		id_team = new.id_team,
+		games = 0, wins = 0, draws = 0, losses = 0, goals_scored = 0, goals_conceded = 0, points = 0;
+end if;
+
+end */;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Table structure for table `tournament_table`
+--
+
+DROP TABLE IF EXISTS `tournament_table`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tournament_table` (
+  `id_season` int(11) NOT NULL,
+  `id_division` int(11) NOT NULL,
+  `id_team` int(11) NOT NULL,
+  `games` int(11) DEFAULT '0',
+  `wins` int(11) DEFAULT '0',
+  `draws` int(11) DEFAULT '0',
+  `losses` int(11) DEFAULT '0',
+  `goals_scored` int(11) DEFAULT '0',
+  `goals_conceded` int(11) DEFAULT '0',
+  `points` int(11) DEFAULT '0',
+  PRIMARY KEY (`id_season`,`id_division`,`id_team`),
+  KEY `fk_tournament_table_teams1_idx` (`id_team`),
+  KEY `fk_tournament_table_divisions1_idx` (`id_division`),
+  KEY `fk_tournament_table_sesons1_idx` (`id_season`),
+  CONSTRAINT `fk_tournament_table_divisions1` FOREIGN KEY (`id_division`) REFERENCES `divisions` (`id_division`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tournament_table_sesons1` FOREIGN KEY (`id_season`) REFERENCES `sesons` (`id_season`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tournament_table_teams1` FOREIGN KEY (`id_team`) REFERENCES `teams` (`id_team`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tournament_table`
+--
+
+LOCK TABLES `tournament_table` WRITE;
+/*!40000 ALTER TABLE `tournament_table` DISABLE KEYS */;
+INSERT INTO `tournament_table` VALUES (1,1,1,0,0,0,0,0,0,0),(1,1,2,0,0,0,0,0,0,0),(1,1,3,0,0,0,0,0,0,0),(1,1,4,0,0,0,0,0,0,0),(1,1,5,0,0,0,0,0,0,0),(1,1,6,0,0,0,0,0,0,0),(1,1,7,0,0,0,0,0,0,0),(1,1,8,0,0,0,0,0,0,0),(1,1,9,0,0,0,0,0,0,0),(1,1,10,0,0,0,0,0,0,0),(1,1,11,0,0,0,0,0,0,0),(1,1,12,0,0,0,0,0,0,0),(1,1,13,0,0,0,0,0,0,0),(1,1,14,0,0,0,0,0,0,0),(1,1,15,0,0,0,0,0,0,0),(1,1,16,0,0,0,0,0,0,0),(1,2,17,0,0,0,0,0,0,0),(1,2,18,0,0,0,0,0,0,0),(1,2,19,0,0,0,0,0,0,0),(1,2,20,0,0,0,0,0,0,0),(1,2,21,0,0,0,0,0,0,0),(1,2,22,0,0,0,0,0,0,0),(1,2,23,0,0,0,0,0,0,0),(1,2,24,0,0,0,0,0,0,0),(1,2,25,0,0,0,0,0,0,0),(1,2,26,0,0,0,0,0,0,0),(1,2,27,0,0,0,0,0,0,0),(1,2,28,0,0,0,0,0,0,0),(1,2,29,0,0,0,0,0,0,0),(1,2,30,0,0,0,0,0,0,0),(1,2,31,0,0,0,0,0,0,0),(1,2,38,0,0,0,0,0,0,0),(1,2,39,0,0,0,0,0,0,0),(1,2,40,0,0,0,0,0,0,0),(1,2,41,0,0,0,0,0,0,0),(1,2,42,0,0,0,0,0,0,0);
+/*!40000 ALTER TABLE `tournament_table` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Temporary view structure for view `v_first_div_tournament_table`
+--
+
+DROP TABLE IF EXISTS `v_first_div_tournament_table`;
+/*!50001 DROP VIEW IF EXISTS `v_first_div_tournament_table`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_first_div_tournament_table` AS SELECT 
+ 1 AS `name_division`,
+ 1 AS `id_division`,
+ 1 AS `team_name`,
+ 1 AS `id_team`,
+ 1 AS `games`,
+ 1 AS `wins`,
+ 1 AS `draws`,
+ 1 AS `losses`,
+ 1 AS `goals_scored`,
+ 1 AS `goals_conceded`,
+ 1 AS `sc_con`,
+ 1 AS `points`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_high_div_tournament_table`
+--
+
+DROP TABLE IF EXISTS `v_high_div_tournament_table`;
+/*!50001 DROP VIEW IF EXISTS `v_high_div_tournament_table`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_high_div_tournament_table` AS SELECT 
+ 1 AS `name_division`,
+ 1 AS `id_division`,
+ 1 AS `team_name`,
+ 1 AS `id_team`,
+ 1 AS `games`,
+ 1 AS `wins`,
+ 1 AS `draws`,
+ 1 AS `losses`,
+ 1 AS `goals_scored`,
+ 1 AS `goals_conceded`,
+ 1 AS `sc_con`,
+ 1 AS `points`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_matches`
+--
+
+DROP TABLE IF EXISTS `v_matches`;
+/*!50001 DROP VIEW IF EXISTS `v_matches`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_matches` AS SELECT 
+ 1 AS `id_match`,
+ 1 AS `name_division`,
+ 1 AS `id_division`,
+ 1 AS `id_tour`,
+ 1 AS `team_home`,
+ 1 AS `goal_home`,
+ 1 AS `goal_guest`,
+ 1 AS `team_guest`,
+ 1 AS `m_date`,
+ 1 AS `name_stadium`,
+ 1 AS `staff_name`,
+ 1 AS `transfer`,
+ 1 AS `logo_home`,
+ 1 AS `logo_guest`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_players_in_matche`
+--
+
+DROP TABLE IF EXISTS `v_players_in_matche`;
+/*!50001 DROP VIEW IF EXISTS `v_players_in_matche`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_players_in_matche` AS SELECT 
+ 1 AS `id_match`,
+ 1 AS `id_division`,
+ 1 AS `id_tour`,
+ 1 AS `id_player`,
+ 1 AS `name`,
+ 1 AS `number`,
+ 1 AS `team_name`,
+ 1 AS `count_goals`,
+ 1 AS `count_assist`,
+ 1 AS `yellow`,
+ 1 AS `red`,
+ 1 AS `penalty`,
+ 1 AS `penalty_out`,
+ 1 AS `own_goal`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_squad`
+--
+
+DROP TABLE IF EXISTS `v_squad`;
+/*!50001 DROP VIEW IF EXISTS `v_squad`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_squad` AS SELECT 
+ 1 AS `id_player`,
+ 1 AS `team_name`,
+ 1 AS `id_team`,
+ 1 AS `name`,
+ 1 AS `name_amplua`,
+ 1 AS `birthdate`,
+ 1 AS `number`,
+ 1 AS `games`,
+ 1 AS `goal`,
+ 1 AS `penalty`,
+ 1 AS `assist`,
+ 1 AS `yellow_card`,
+ 1 AS `red_card`,
+ 1 AS `photo`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Temporary view structure for view `v_tournament_table`
+--
+
+DROP TABLE IF EXISTS `v_tournament_table`;
+/*!50001 DROP VIEW IF EXISTS `v_tournament_table`*/;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+/*!50001 CREATE VIEW `v_tournament_table` AS SELECT 
+ 1 AS `name_division`,
+ 1 AS `id_division`,
+ 1 AS `team_name`,
+ 1 AS `id_team`,
+ 1 AS `games`,
+ 1 AS `wins`,
+ 1 AS `draws`,
+ 1 AS `losses`,
+ 1 AS `goals_scored`,
+ 1 AS `goals_conceded`,
+ 1 AS `sc_con`,
+ 1 AS `points`,
+ 1 AS `logo`*/;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Dumping events for database 'football_main'
+--
+
+--
+-- Dumping routines for database 'football_main'
+--
+/*!50003 DROP PROCEDURE IF EXISTS `insertMatches` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertMatches`( in division int,
+								in tour int,
+                                in t_home varchar(50),
+                                in g_home int,
+                                in g_guest int,
+                                in t_guest varchar(50),
+                                in date_m datetime,
+                                in staff varchar(50),
+                                in stadium varchar(50),
+                                in trans varchar(50)
+								)
+begin 
+
+/*	declare d_m datetime;
+
+	if date_m is not null then
+		set d_m = date_format(date_m,'%Y-%m-%d %H:%i');  
+	end if;*/
+
+	if g_home is null or g_guest is null then 
+		
+        if stadium is null then
+			insert into matches 
+			set id_season = (select id_season from sesons where curdate() between year_start and year_end),
+				id_division = division, 
+				id_tour = tour,
+				team_home = (select id_team from teams where team_name = t_home),
+				team_guest = (select id_team from teams where team_name = t_guest);
+        else
+			insert into matches 
+			set id_season = (select id_season from sesons where curdate() between year_start and year_end),
+				id_division = division, 
+				id_tour = tour,
+				team_home = (select id_team from teams where team_name = t_home),
+				team_guest = (select id_team from teams where team_name = t_guest),
+				m_date = date_m,
+				id_stadium = (select id_stadium from stadiums where name_stadium = stadium);
+        end if;
+        
+
+    end if;
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insertStaff` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insertStaff`(in name_ref varchar(70) )
+begin 
+	
+    declare f int default 0; #переменная для проверки условия
+    
+    select count(1)
+     into f
+    from staff
+     where staff_name like name_ref;
+     
+     if f = 0 then
+		insert into staff
+        set staff_name = name_ref, id_pos = 3;
+	 else
+		select 'This name have already exiat' as waring;
+        #SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: This name have already exist';
+     end if;
+
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `insPlayerInMatche` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8 */ ;
+/*!50003 SET character_set_results = utf8 */ ;
+/*!50003 SET collation_connection  = utf8_general_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'STRICT_TRANS_TABLES,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`root`@`localhost` PROCEDURE `insPlayerInMatche`(
+	in t_home varchar(50),
+    in t_guest varchar(50),
+    in tour int,
+    in name_player varchar(50),
+    in t_player varchar(50),
+    in goals int,
+    in assists int,
+    in c_yellow int,
+    in c_red int,
+    in l_penalty int,
+    in l_penalty_out int,
+    in l_own_goal int)
+begin
+	declare l_id_match int;
+    declare l_id_player int;
+	declare f int;
+    declare f_2 int default 0;
+    #вытаскиваем id матча
+    select id_match
+     into l_id_match
+    from v_matches
+    where team_home like t_home and team_guest like t_guest and id_tour = tour;
+    #вытаскиваем кол-во. Если 1 то вытаскиваем игрока просто по имени, если нет то вытаскиваем и с командой
+    select count(1)
+     into f
+	from players 
+    where name like name_player;
+    
+    if f > 1 then 
+		select id_player
+         into l_id_player
+        from players
+        where name like name_player and id_team = (select id_team from teams where team_name like t_player);
+        
+		select count(1)
+		 into f_2
+        from players_in_match pm, v_matches m
+        where pm.id_match = m.id_match
+        and m.id_tour = tour
+        and m.team_home = t_home
+        and m.team_guest = t_guest
+        and pm.id_player = l_id_player;
+        
+        
+    else 
+		select id_player
+		 into l_id_player
+		from players 
+        where name like name_player;
+        
+    end if;
+    
+    if l_id_player is null then 
+		insert into players
+        set name = name_player, id_team = 36;
+        
+        select id_player
+         into l_id_player
+        from players
+        where name = name_player;
+	end if;
+    #добавляем игрока
+    if f_2 <> 1 then 
+		insert into players_in_match
+		set id_match = l_id_match,
+			id_player = l_id_player,
+			count_goals = goals,
+			count_assist = assists,
+			yellow = c_yellow,
+			red = c_red,
+			penalty = l_penalty,
+			penalty_out = l_penalty_out,
+			own_goal = l_own_goal;
+	end if;
+end ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+
+--
+-- Final view structure for view `v_first_div_tournament_table`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_first_div_tournament_table`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_first_div_tournament_table` AS select `d`.`name_division` AS `name_division`,`tt`.`id_division` AS `id_division`,`t`.`team_name` AS `team_name`,`tt`.`id_team` AS `id_team`,`tt`.`games` AS `games`,`tt`.`wins` AS `wins`,`tt`.`draws` AS `draws`,`tt`.`losses` AS `losses`,`tt`.`goals_scored` AS `goals_scored`,`tt`.`goals_conceded` AS `goals_conceded`,(`tt`.`goals_scored` - `tt`.`goals_conceded`) AS `sc_con`,`tt`.`points` AS `points` from ((`tournament_table` `tt` join `teams` `t`) join `divisions` `d`) where ((`tt`.`id_team` = `t`.`id_team`) and (`tt`.`id_division` = `d`.`id_division`) and (`d`.`id_division` = 2)) order by `tt`.`points` desc,(`tt`.`goals_scored` - `tt`.`goals_conceded`) desc */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_high_div_tournament_table`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_high_div_tournament_table`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_high_div_tournament_table` AS select `d`.`name_division` AS `name_division`,`tt`.`id_division` AS `id_division`,`t`.`team_name` AS `team_name`,`tt`.`id_team` AS `id_team`,`tt`.`games` AS `games`,`tt`.`wins` AS `wins`,`tt`.`draws` AS `draws`,`tt`.`losses` AS `losses`,`tt`.`goals_scored` AS `goals_scored`,`tt`.`goals_conceded` AS `goals_conceded`,(`tt`.`goals_scored` - `tt`.`goals_conceded`) AS `sc_con`,`tt`.`points` AS `points` from ((`tournament_table` `tt` join `teams` `t`) join `divisions` `d`) where ((`tt`.`id_team` = `t`.`id_team`) and (`tt`.`id_division` = `d`.`id_division`) and (`d`.`id_division` = 1)) order by `tt`.`points` desc,(`tt`.`goals_scored` - `tt`.`goals_conceded`) desc */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_matches`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_matches`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_matches` AS select `m`.`id_match` AS `id_match`,`d`.`name_division` AS `name_division`,`d`.`id_division` AS `id_division`,`m`.`id_tour` AS `id_tour`,`th`.`team_name` AS `team_home`,`m`.`goal_home` AS `goal_home`,`m`.`goal_guest` AS `goal_guest`,`tg`.`team_name` AS `team_guest`,`m`.`m_date` AS `m_date`,`s`.`name_stadium` AS `name_stadium`,`st`.`staff_name` AS `staff_name`,`m`.`transfer` AS `transfer`,`th`.`logo` AS `logo_home`,`tg`.`logo` AS `logo_guest` from (((((`matches` `m` join `teams` `th` on((`th`.`id_team` = `m`.`team_home`))) join `teams` `tg` on((`tg`.`id_team` = `m`.`team_guest`))) left join `stadiums` `s` on((`s`.`id_stadium` = `m`.`id_stadium`))) left join `divisions` `d` on((`d`.`id_division` = `m`.`id_division`))) left join `staff` `st` on((`st`.`id_staff` = `m`.`id_referee`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_players_in_matche`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_players_in_matche`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_players_in_matche` AS select `pm`.`id_match` AS `id_match`,`m`.`id_division` AS `id_division`,`m`.`id_tour` AS `id_tour`,`p`.`id_player` AS `id_player`,`p`.`name` AS `name`,`p`.`number` AS `number`,`t`.`team_name` AS `team_name`,`pm`.`count_goals` AS `count_goals`,`pm`.`count_assist` AS `count_assist`,`pm`.`yellow` AS `yellow`,`pm`.`red` AS `red`,`pm`.`penalty` AS `penalty`,`pm`.`penalty_out` AS `penalty_out`,`pm`.`own_goal` AS `own_goal` from (((`players_in_match` `pm` join `players` `p` on((`p`.`id_player` = `pm`.`id_player`))) join `matches` `m` on((`m`.`id_match` = `pm`.`id_match`))) join `teams` `t` on((`t`.`id_team` = `p`.`id_team`))) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_squad`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_squad`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_squad` AS select `p`.`id_player` AS `id_player`,`t`.`team_name` AS `team_name`,`t`.`id_team` AS `id_team`,`p`.`name` AS `name`,`a`.`name_amplua` AS `name_amplua`,`p`.`birthdate` AS `birthdate`,`p`.`number` AS `number`,`ps`.`games` AS `games`,(`ps`.`goal` + `ps`.`penalty`) AS `goal`,`ps`.`penalty` AS `penalty`,`ps`.`assist` AS `assist`,`ps`.`yellow_card` AS `yellow_card`,`ps`.`red_card` AS `red_card`,`p`.`photo` AS `photo` from (((`players` `p` join `teams` `t`) join `players_statistics` `ps`) join `amplua` `a`) where ((`p`.`id_team` = `t`.`id_team`) and (`p`.`id_player` = `ps`.`id_player`) and (`p`.`id_amplua` = `a`.`id_amplua`)) */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+
+--
+-- Final view structure for view `v_tournament_table`
+--
+
+/*!50001 DROP VIEW IF EXISTS `v_tournament_table`*/;
+/*!50001 SET @saved_cs_client          = @@character_set_client */;
+/*!50001 SET @saved_cs_results         = @@character_set_results */;
+/*!50001 SET @saved_col_connection     = @@collation_connection */;
+/*!50001 SET character_set_client      = utf8 */;
+/*!50001 SET character_set_results     = utf8 */;
+/*!50001 SET collation_connection      = utf8_general_ci */;
+/*!50001 CREATE ALGORITHM=UNDEFINED */
+/*!50013 DEFINER=`root`@`localhost` SQL SECURITY DEFINER */
+/*!50001 VIEW `v_tournament_table` AS select `d`.`name_division` AS `name_division`,`tt`.`id_division` AS `id_division`,`t`.`team_name` AS `team_name`,`tt`.`id_team` AS `id_team`,`tt`.`games` AS `games`,`tt`.`wins` AS `wins`,`tt`.`draws` AS `draws`,`tt`.`losses` AS `losses`,`tt`.`goals_scored` AS `goals_scored`,`tt`.`goals_conceded` AS `goals_conceded`,(`tt`.`goals_scored` - `tt`.`goals_conceded`) AS `sc_con`,`tt`.`points` AS `points`,`t`.`logo` AS `logo` from ((`tournament_table` `tt` join `teams` `t`) join `divisions` `d`) where ((`tt`.`id_team` = `t`.`id_team`) and (`tt`.`id_division` = `d`.`id_division`)) order by `tt`.`points` desc,(`tt`.`goals_scored` - `tt`.`goals_conceded`) desc */;
+/*!50001 SET character_set_client      = @saved_cs_client */;
+/*!50001 SET character_set_results     = @saved_cs_results */;
+/*!50001 SET collation_connection      = @saved_col_connection */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2019-03-05 22:30:56
