@@ -62,7 +62,6 @@ if new.id_referee is not null and goal_h is not null then
     end if;
 
 end if;
-
 end//
 
 drop trigger if exists tr_bef_ins_matches;
@@ -79,18 +78,20 @@ into l_id_match, l_g_home
 from matches m
 where team_home = new.team_home and team_guest = new.team_guest;
 
+
 	if new.id_referee is null then 
+    
 		set new.goal_home = null;
         set new.goal_guest = null;
     end if;
 
 if l_id_match is not null  and l_g_home is not null then 
-	update matches 
-    set goal_home = new.goal_home,
-		goal_guest = new.goal_guest
-	where id_match = l_id_match;
+	
     
-    SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: not insert, but update';
+    set new.goal_home = new.goal_home;
+	set new.goal_guest = new.goal_guest;
+    
+    #SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: not insert, but update';
 end if;
     
 end//
