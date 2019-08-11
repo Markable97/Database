@@ -9,6 +9,7 @@ select d.match_date,
        m.team_home,
        m.team_guest,
        d.id_division,
+       m.name_division,
        d.id_season,
        d.busy_time
 from dayofmatch d
