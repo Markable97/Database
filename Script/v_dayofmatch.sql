@@ -1,6 +1,6 @@
 create or replace view v_dayofmatch as
 select d.match_date, 
-	   d.match_time,
+	   time_format(d.match_time,'%H:%i') match_time,
        d.id_stadium,
        d.id_tour,
        s.name_stadium,
