@@ -9,6 +9,12 @@ begin
 				id_stadium = old.id_stadium
 		where id_match = new.id_match;
     end if;
+    if new.id_match = 0 and old.id_match is not null then 
+		update matches
+			set m_date = null,
+				id_stadium = null
+        where id_match = old.id_match;    
+    end if;
 end//
 drop trigger if exists tr_bef_upd_dayofmatch//
 create trigger tr_bef_upd_dayofmatch before update on dayofmatch
@@ -22,4 +28,7 @@ begin
 								from matches
                                 where id_match = new.id_match);
     end if;
+    if new.id_match = 0 then 
+		set new.id_division = null;
+    end if;    
 end// 
