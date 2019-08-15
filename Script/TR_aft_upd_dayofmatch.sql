@@ -14,7 +14,12 @@ drop trigger if exists tr_bef_upd_dayofmatch//
 create trigger tr_bef_upd_dayofmatch before update on dayofmatch
 for each row
 begin
-	if new.id_match is not null then 
+	if new.id_match is not null and new.busy_time is null then 
 		set new.busy_time = 1;
+    end if;
+    if new.id_division is null and new.id_match is not null then 
+		set new.id_division = (select id_division
+								from matches
+                                where id_match = new.id_match);
     end if;
 end// 
