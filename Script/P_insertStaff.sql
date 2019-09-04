@@ -12,7 +12,7 @@ begin
      
      if f = 0 then
 		insert into staff
-        set staff_name = name_ref, id_pos = 3;
+        set staff_name = name_ref;
 	 else
 		select 'This name have already exiat' as waring;
         #SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: This name have already exist';

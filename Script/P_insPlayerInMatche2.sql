@@ -22,12 +22,13 @@ begin
     select id_match
      into l_id_match
     from v_matches
-    where team_home like t_home and team_guest like t_guest and id_tour = tour;
+    where team_home like change_team_name(t_home) and team_guest like change_team_name(t_guest) and id_tour = tour;
     #вытаскиваем игрока
     select id_player
      into l_id_player
 	from players
-     where name = name_player;
+     where name like name_player;
+     
     #добавляем игрока в матч
     if l_id_player is not null then 
 		insert into players_in_match
@@ -43,7 +44,7 @@ begin
 	else 
 		SIGNAL SQLSTATE '02000' SET MESSAGE_TEXT = 'Warning: Player is not found';
         
-        insert into players
+        /*insert into players
         set name = name_player, id_team = 36;
         
         select id_player
@@ -60,7 +61,7 @@ begin
 				red = c_red,
 				penalty = l_penalty,
 				penalty_out = l_penalty_out,
-				own_goal = l_own_goal;
+				own_goal = l_own_goal;*/
     end if;
    
 end//
