@@ -13,7 +13,8 @@ select m.id_match,
        st.staff_name,
        m.transfer,
        th.logo as logo_home,
-       tg.logo as logo_guest
+       tg.logo as logo_guest,
+	   played
 from matches m
 join teams th on th.id_team = m.team_home
 join teams tg on tg.id_team = m.team_guest
