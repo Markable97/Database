@@ -1,4 +1,4 @@
-use football_main;
+use football_main_work;
 drop trigger if exists tr_aft_ins_players_in_match;
 DELIMITER //
 create trigger  tr_aft_ins_players_in_match after insert on players_in_match
