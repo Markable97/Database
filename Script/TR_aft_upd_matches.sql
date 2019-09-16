@@ -21,8 +21,8 @@ set goal_v = new.goal_guest;
 /*Если матч сыгран и надо поменять данные, иначе все как было*/
 if new.played = 1 then 
 
-	if goal_h > goal_v and old.goal_home > old.goal_guest then
-		#Победитель не поменялся
+	if (goal_h > goal_v and old.goal_home > old.goal_guest) or (goal_h < goal_v and old.goal_home < old.goal_guest) then
+		#Победитель или проигравший не поменялся
         #HOME
         update tournament_table
         set goals_scored = goals_scored - old.goal_home + goal_h,
@@ -69,8 +69,8 @@ if new.played = 1 then
             losses = losses - 1,
             points = points + 3
 		where id_team = team_guest;
-	else
-		# 3 случай ничья
+	elseif goal_h = goal_v and  old.goal_home = old.goal_guest then  
+		# 3 случай ничья была, ничья осталась
 		#HOME
         update tournament_table
         set goals_scored = goals_scored - old.goal_home + goal_h,
@@ -80,6 +80,42 @@ if new.played = 1 then
         update tournament_table
         set goals_scored = goals_scored - old.goal_guest + goal_v,
 			goals_conceded = goals_conceded - old.goal_home + goal_h
+		where id_team = team_guest;
+	elseif goal_h = goal_v and old.goal_home > old.goal_guest then
+		# 4 случай - ничья, но домашняя выигрывала
+        #HOME
+        update tournament_table
+        set goals_scored = goals_scored - old.goal_home + goal_h,
+			goals_conceded = goals_conceded = old.goal_guest + goal_v,
+            points = points - 3 + 1,
+            wins = wins - 1,
+            draws = draws + 1
+		where id_team = team_home;
+        #GUEST
+        update tournament_table
+        set goals_scored = goals_scored - old.goal_guest + goal_v,
+			goals_conceded = goals_conceded - old.goal_home + goal_h,
+            points = points + 1,
+            losses = losses - 1,
+            draws = draws + 1
+		where id_team = team_guest;
+    elseif goal_h = goal_v and old.goal_home < old.goal_guest then
+		# DRAW - before guest win
+        # HOME
+        update tournament_table
+        set goals_scored = goals_scored - old.goal_home + goal_h,
+			goals_conceded = goals_conceded = old.goal_guest + goal_v,
+            draws = draws + 1,
+            losses = losses - 1,
+            points = points + 1
+		where id_team = team_home;
+        # GUEST
+        update tournament_table
+        set goals_scored = goals_scored - old.goal_home + goal_h,
+			goals_conceded = goals_conceded = old.goal_guest + goal_v,
+            wins = wins - 1,
+            draws = draws + 1,
+            points = points - 3 + 1
 		where id_team = team_guest;
     end if;
 
