@@ -16,5 +16,5 @@ select pm.id_match,
 from players_in_match pm
 join players p on p.id_player = pm.id_player
 join matches m on m.id_match = pm.id_match 
-join teams t on t.id_team = p.id_team
+join teams t on t.id_team = pm.id_team
 

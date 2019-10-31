@@ -1,4 +1,3 @@
-use football_main_work;
 drop trigger if exists tr_aft_ins_players_in_match;
 DELIMITER //
 create trigger  tr_aft_ins_players_in_match after insert on players_in_match
@@ -38,6 +37,6 @@ set games = games + 1,
     ps.penalty = ps.penalty + l_penalty,
 	ps.penalty_out = ps.penalty_out + l_penalty_out, 
     ps.own_goal = ps.own_goal + l_own_goal
-where ps.id_player = l_id;
+where ps.id_player = l_id and ps.id_team = new.id_team;
 	
 end//

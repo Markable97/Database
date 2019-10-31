@@ -20,7 +20,7 @@ set goal_h = new.goal_home;
 set goal_v = new.goal_guest;
 
 #if goal_h is not null then 
-if new.id_referee is not null and goal_h is not null then 
+if goal_h is not null and new.id_referee is not null then 
 
 	    if goal_h > goal_v then
     #победа первой
