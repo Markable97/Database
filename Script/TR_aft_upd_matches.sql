@@ -1,4 +1,3 @@
-use football_main_work;
 drop trigger if exists up_tournament_table;
 DELIMITER //
 create trigger up_tournament_table after update on matches 
@@ -19,7 +18,7 @@ set team_guest = old.team_guest;
 set goal_h = new.goal_home;
 set goal_v = new.goal_guest;
 /*Если матч сыгран и надо поменять данные, иначе все как было*/
-if new.played = 1 then 
+if new.played = 1 and old.goal_home is not null then 
 
 	if (goal_h > goal_v and old.goal_home > old.goal_guest) or (goal_h < goal_v and old.goal_home < old.goal_guest) then
 		#Победитель или проигравший не поменялся
