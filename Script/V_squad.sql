@@ -1,4 +1,3 @@
-use football_main;
 create or replace view v_squad as 
 select 
 	p.id_player,
@@ -16,6 +15,6 @@ select
     ps.red_card,
     p.photo
 from players p, teams t, players_statistics ps, amplua a
-where p.id_team = t.id_team
+where ps.id_team = t.id_team
 and p.id_player = ps.id_player
 and p.id_amplua = a.id_amplua;
